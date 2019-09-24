@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ch-ZN">
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="../css/md.css" />
+	<link rel="stylesheet" type="text/css" href="../layui/css/layui.css" />
+	<!-- 引入样式 -->
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	<!-- 引入组件库 -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<style>
+		#article-page {
+			position: relative;
+			margin: 20px;
+		}
+		#nav {
+			position: absolute;
+		}
+		.markdown-body {
+			position: absolute;
+			left: 16.875rem;		
+			/* right: 50px; */
+			display: inline-block;
+			box-sizing: border-box;
+			min-width: 200px;
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 0 45px;
+		}
+		
+		@media (max-width: 767px) {
+			.markdown-body {
+				padding: 15px;
+			}
+		}
+	</style>
+
+</head>
+<body>
+	<div id="article-page">
+		<div id="nav" hidden-xs-only>
+			<ul class="layui-nav layui-nav-tree layui-nav-side" lay-filter="test" >
+				<li class="layui-nav-item layui-nav-itemed" v-for="(articles,sortindex) in articlelist">
+					<a href="javascript:;">{{articles.articlesort}}</a>
+					<dl class="layui-nav-child" v-for="(article,nameindex) in articles.articlename" >
+						<dd><a href="#" @click="toArticle(sortindex,nameindex)">{{article}}</a></dd>
+					</dl>
+				</li>
+			</ul>
+		</div>
+		<article-list :html="html" />
+	</div>
+
+
+	
+	
+<template id="article" >
+	<div class="markdown-body" v-html="html">
+		{{html}}
+	</div>
+</template>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/marked.min.js"></script>
+<script src="../js/aType.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+<script type="text/javascript">
+// 由于$.ajax是异步获取,拿不到数据
+// 最后都没有搞清楚为什么ajax拿不到数据
+
+ 
+ // 文章数据: 分类 文件名
+let articlelist = aType;
+let ArticleList = {
+	template: "#article",
+	props: ["html"],
+	
+}
+let vm = new Vue({
+	el: "#article-page",
+	data: {
+		articlelist,
+		html: "",
+	},
+	components: {
+		ArticleList,
+	},
+	created(){
+		let url = "../md/JavaScript/初学JS-One.md";
+		this.$nextTick(function(){
+			this.html = marked(this.readFile(url))
+		})
+	},
+	methods:{
+		toArticle(sI,nI){
+			let url = "../md/"+this.articlelist[sI].articlesort+"/"+this.articlelist[sI].articlename[nI]+".md";
+			this.$nextTick(function(){
+				this.html = marked(this.readFile(url))
+			})
+		},
+		// 获取本地数据函数
+		readFile(filePath){
+		    // 创建一个新的xhr对象
+		    let xhr = null
+		    if (window.XMLHttpRequest) {
+		      xhr = new XMLHttpRequest()
+		    } else {
+		      // eslint-disable-next-line
+		      xhr = new ActiveXObject('Microsoft.XMLHTTP')
+		    }
+		    const okStatus = document.location.protocol === 'file' ? 0 : 200
+		    xhr.open('GET', filePath, false)
+		    xhr.overrideMimeType('text/html;charset=utf-8')
+		    xhr.send(null)
+		    return xhr.status === okStatus ? xhr.responseText : null
+		 }
+	}
+})
+
+</script>
+
+</body>
+<!-- 位置一直变，我也不知道为什么 -->
+<script src="../layui/layui.all.js"></script>
+</html>
